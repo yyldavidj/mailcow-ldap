@@ -24,12 +24,36 @@ def add_user(email, name, active):
         'local_part':email.split('@')[0],
         'domain':email.split('@')[1],
         'name':name,
+        'quota':"512",
         'password':password,
         'password2':password,
         "active": 1 if active else 0
     }
 
     __post_request('api/v1/add/mailbox', json_data)
+    
+    json_data = {
+        'items': [email],
+        'attr': {
+            'user_acl': [
+                "spam_alias",
+                "tls_policy",
+                "spam_score",
+                "spam_policy",
+                "delimiter_action",
+                #"syncjobs",
+                #"eas_reset",
+                "quarantine",
+                #"sogo_profile_reset",
+                #"quarantine_attachments",
+                "quarantine_notification",
+                #"app_passwds",
+                "pushover"
+            ]
+        }
+    }
+    
+    __post_request('api/v1/edit/user-acl', json_data)
 
 def edit_user(email, active=None, name=None):
     attr = {}
