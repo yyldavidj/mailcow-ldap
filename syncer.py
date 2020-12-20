@@ -40,10 +40,10 @@ def sync():
 
     ldap_results = ldap_connector.search_s(config['LDAP_BASE_DN'], ldap.SCOPE_SUBTREE, 
                 config['LDAP_FILTER'], 
-                ['userPrincipalName', 'cn', 'userAccountControl'])
+                ['mail', 'cn', 'userAccountControl'])
 
     ldap_results = map(lambda x: (
-        x[1]['userPrincipalName'][0].decode(),
+        x[1]['mail'][0].decode(),
         x[1]['cn'][0].decode(),
         False if int(x[1]['userAccountControl'][0].decode()) & 0b10 else True), ldap_results)
 
@@ -123,6 +123,7 @@ def apply_config(config_file, config_data):
 def read_config():
     required_config_keys = [
         'LDAP-MAILCOW_LDAP_URI', 
+        'LDAP-MAILCOW_LDAP_DOMAIN', 
         'LDAP-MAILCOW_LDAP_BASE_DN',
         'LDAP-MAILCOW_LDAP_BIND_DN', 
         'LDAP-MAILCOW_LDAP_BIND_DN_PASSWORD',
@@ -156,6 +157,7 @@ def read_dovecot_passdb_conf_template():
 
     return data.substitute(
         ldap_uri=config['LDAP_URI'], 
+        ldap_domain=config['LDAP_DOMAIN'], 
         ldap_base_dn=config['LDAP_BASE_DN']
         )
 
