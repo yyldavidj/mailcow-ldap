@@ -18,13 +18,13 @@ def __post_request(url, json_data):
     if rsp['type'] != 'success':
         sys.exit(f"API {url}: {rsp['type']} - {rsp['msg']}")
 
-def add_user(email, name, active):
+def add_user(email, name, active, quotum):
     password = ''.join(random.choices(string.ascii_letters + string.digits, k=20))
     json_data = {
         'local_part':email.split('@')[0],
         'domain':email.split('@')[1],
         'name':name,
-        'quota':"512",
+        'quota':str(quotum),
         'password':password,
         'password2':password,
         "active": 1 if active else 0
