@@ -42,48 +42,52 @@ def sync():
                 config['LDAP_FILTER'], 
                 ['mail', 'displayName', 'userAccountControl'])
 
-    ldap_results = map(lambda x: (
-        x[1]['mail'][0].decode(),
-        x[1]['displayName'][0].decode(),
-        False if int(x[1]['userAccountControl'][0].decode()) & 0b10 else True), ldap_results)
-
     filedb.session_time = datetime.datetime.now()
 
-    for (email, ldap_name, ldap_active) in ldap_results:
-        (db_user_exists, db_user_active) = filedb.check_user(email)
-        (api_user_exists, api_user_active, api_name) = api.check_user(email)
+    for x in ldap_results:
+        try:
+            logging.info("Working on " + x[1]['sAMAccountName'])
+            email = x[1]['mail'][0].decode()
+            ldap_name = x[1]['displayName'][0].decode()
+            ldap_active = False if int(x[1]['userAccountControl'][0].decode()) & 0b10 else True
+            
+            (db_user_exists, db_user_active) = filedb.check_user(email)
+            (api_user_exists, api_user_active, api_name) = api.check_user(email)
 
-        unchanged = True
+            unchanged = True
 
-        if not db_user_exists:
-            filedb.add_user(email, ldap_active)
-            (db_user_exists, db_user_active) = (True, ldap_active)
-            logging.info (f"Added filedb user: {email} (Active: {ldap_active})")
-            unchanged = False
+            if not db_user_exists:
+                filedb.add_user(email, ldap_active)
+                (db_user_exists, db_user_active) = (True, ldap_active)
+                logging.info (f"Added filedb user: {email} (Active: {ldap_active})")
+                unchanged = False
 
-        if not api_user_exists:
-            api.add_user(email, ldap_name, ldap_active, 256)
-            (api_user_exists, api_user_active, api_name) = (True, ldap_active, ldap_name)
-            logging.info (f"Added Mailcow user: {email} (Active: {ldap_active})")
-            unchanged = False
+            if not api_user_exists:
+                api.add_user(email, ldap_name, ldap_active, 256)
+                (api_user_exists, api_user_active, api_name) = (True, ldap_active, ldap_name)
+                logging.info (f"Added Mailcow user: {email} (Active: {ldap_active})")
+                unchanged = False
 
-        if db_user_active != ldap_active:
-            filedb.user_set_active_to(email, ldap_active)
-            logging.info (f"{'Activated' if ldap_active else 'Deactived'} {email} in filedb")
-            unchanged = False
+            if db_user_active != ldap_active:
+                filedb.user_set_active_to(email, ldap_active)
+                logging.info (f"{'Activated' if ldap_active else 'Deactived'} {email} in filedb")
+                unchanged = False
 
-        if api_user_active != ldap_active:
-            api.edit_user(email, active=ldap_active)
-            logging.info (f"{'Activated' if ldap_active else 'Deactived'} {email} in Mailcow")
-            unchanged = False
+            if api_user_active != ldap_active:
+                api.edit_user(email, active=ldap_active)
+                logging.info (f"{'Activated' if ldap_active else 'Deactived'} {email} in Mailcow")
+                unchanged = False
 
-        if api_name != ldap_name:
-            api.edit_user(email, name=ldap_name)
-            logging.info (f"Changed name of {email} in Mailcow to {ldap_name}")
-            unchanged = False
+            if api_name != ldap_name:
+                api.edit_user(email, name=ldap_name)
+                logging.info (f"Changed name of {email} in Mailcow to {ldap_name}")
+                unchanged = False
 
-        if unchanged:
-            logging.info (f"Checked user {email}, unchanged")
+            if unchanged:
+                logging.info (f"Checked user {email}, unchanged")
+        except Exception:
+            logging.info (f"Exception during something. See above")
+            pass
 
     for email in filedb.get_unchecked_active_users():
         (api_user_exists, api_user_active, _) = api.check_user(email)
