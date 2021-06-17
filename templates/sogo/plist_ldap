@@ -8,9 +8,9 @@
     <key>CNFieldName</key>
     <string>cn</string>
     <key>IDFieldName</key>
-    <string>cn</string>
+    <string>uidNumber</string>
     <key>UIDFieldName</key>
-    <string>userPrincipalName</string>
+    <string>mail</string>
 
     <key>baseDN</key>
     <string>$ldap_base_dn</string>
@@ -21,7 +21,7 @@
     <string>$ldap_bind_dn_password</string>
     <key>bindFields</key>
     <array>
-        <string>userPrincipalName</string>
+        <string>mail</string>
     </array>
 
     <key>bindAsCurrentUser</key>
@@ -36,9 +36,9 @@
     <string>$sogo_ldap_filter</string>
 
     <key>isAddressBook</key>
-    <string>NO</string>
+    <string>YES</string>
     <key>displayName</key>
-    <string>Active Directory</string>
+    <string>Webba adresboek</string>
 
     <key>scope</key>
     <string>SUB</string>
