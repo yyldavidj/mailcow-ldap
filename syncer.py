@@ -63,24 +63,26 @@ def sync():
             f"Can't connect to LDAP server {config['LDAP_URI']}, skipping this sync...")
         return
 
+    logging.info(f"{config['LDAP_FILTER']}")
     ldap_results = ldap_connector.search_s(config['LDAP_BASE_DN'], ldap.SCOPE_SUBTREE,
                                            config['LDAP_FILTER'],
-                                           ['mail', 'displayName', 'userAccountControl'])
+                                           ['mail', 'uid', 'userAccountControl'])
 
     logging.info(ldap_results)
+    logging.info(f"{config['MAIL_DOMAIN']}")
+    mail_domain = config['MAIL_DOMAIN']
     filedb.session_time = datetime.datetime.now()
 
     for x in ldap_results:
         try:
             ldap_item = x[1]
-            logging.info(f"Working on {ldap_item['mail']}")
+            email = ldap_item['mail'][0].decode()
         except:
-            logging.info(
-                f"An error occurred while iterating through the LDAP users, skipping this sync...")
-            return
+            email = ldap_item['uid'][0].decode() + '@' + mail_domain
+            logging.info(f"email:{email}")
 
-        email = ldap_item['mail'][0].decode()
-        ldap_name = ldap_item['displayName'][0].decode()
+        logging.info(f"Working on {email}")
+        ldap_name = ldap_item['uid'][0].decode()
         ldap_active = True
 
         (db_user_exists, db_user_active) = filedb.check_user(email)
@@ -95,7 +97,7 @@ def sync():
             unchanged = False
 
         if not api_user_exists:
-            api.add_user(email, ldap_name, ldap_active, 5120)
+            api.add_user(email, ldap_name, ldap_active, 5)
             (api_user_exists, api_user_active, api_name) = (
                 True, ldap_active, ldap_name)
             logging.info(
@@ -168,7 +170,8 @@ def read_config():
         'LDAP-MAILCOW_LDAP_BIND_DN_PASSWORD',
         'LDAP-MAILCOW_API_HOST',
         'LDAP-MAILCOW_API_KEY',
-        'LDAP-MAILCOW_SYNC_INTERVAL'
+        'LDAP-MAILCOW_SYNC_INTERVAL',
+        'LDAP-MAILCOW_MAIL_DOMAIN'
     ]
 
     config = {}
