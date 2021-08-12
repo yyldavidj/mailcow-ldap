@@ -21,7 +21,7 @@ A python script periodically checks and creates new LDAP accounts and deactivate
 
     ```yaml
     ldap-mailcow:
-        image: programmierus/ldap-mailcow
+        image: ghcr.io/yyldavidj/mailcow-ldap:latest
         depends_on:
             - ldap
         volumes:
