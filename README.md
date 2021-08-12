@@ -22,15 +22,14 @@ A python script periodically checks and creates new LDAP accounts and deactivate
     ```yaml
     ldap-mailcow:
         image: programmierus/ldap-mailcow
-        network_mode: host
-        container_name: mailcowcustomized_ldap-mailcow
         depends_on:
-            - nginx-mailcow
+            - ldap
         volumes:
             - ./data/ldap:/db:rw
             - ./data/conf/dovecot:/conf/dovecot:rw
             - ./data/conf/sogo:/conf/sogo:rw
         environment:
+            - LDAP-MAILCOW_MAIL_DOMAIN=example.local
             - LDAP-MAILCOW_LDAP_URI=ldap(s)://dc.example.local
             - LDAP-MAILCOW_LDAP_BASE_DN=OU=Mail Users,DC=example,DC=local
             - LDAP-MAILCOW_LDAP_BIND_DN=CN=Bind DN,CN=Users,DC=example,DC=local
