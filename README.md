@@ -95,4 +95,4 @@ External authentication (identity federation) is an enterprise feature [for mail
 
 I’ve created this tool because I needed it for my regular work. You are free to use it for commercial needs. Please understand that I can work on issues only if they fall within the scope of my current work interests or if I’ll have some available free time (never happened for many years). I’ll do my best to review submitted PRs ASAP, though.
 
-**You can always [contact me](mailto:programmierus@gmail.com) to help you with the integration or for custom modifications on a paid basis. My current hourly rate (ActivityWatch tracked) is 100,-€ with 3h minimum commitment.**
+**You can always [contact me](mailto:yyl.davidj@gmail.com) to help you with the integration or for custom modifications on a paid basis. My current hourly rate (ActivityWatch tracked) is 120,-€ with 3h minimum commitment.**
